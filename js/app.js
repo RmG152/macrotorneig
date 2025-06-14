@@ -1451,6 +1451,29 @@ const FinishedView = () => {
         <h3 className="text-2xl font-bold text-gray-800 mb-4">
           {t("roundHistoryTitle")}
         </h3>
+        {/* Mostrar primero los puntos extra asignados */}
+        <div className="mb-6 p-4 bg-[var(--bg-secondary)] rounded-lg">
+          <h4 className="text-xl font-semibold text-[var(--accent-yellow)] mb-2">
+            {t("assignPointsTitle")}
+          </h4>
+          <ul className="space-y-2">
+            {sortedTeams.map((team) =>
+              team.puntosExtra ? (
+                <li
+                  key={team.id}
+                  className="p-2 bg-[var(--bg-primary)] rounded-md text-sm flex justify-between items-center"
+                >
+                  <span className="font-semibold">{team.nombre}</span>
+                  <span className="text-[var(--accent-yellow)]">
+                    +{team.puntosExtra} {t("points")}
+                  </span>
+                </li>
+              ) : null
+            )}
+          </ul>
+        </div>
+
+        {/* Historial de rondas */}
         <div className="space-y-6">
           {rounds.map((round) => (
             <div key={round.numero} className="border-b pb-4">

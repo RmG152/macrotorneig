@@ -1038,6 +1038,47 @@ const CurrentRoundView = ({ round }) => {
                       <p className="text-xl font-black text-[var(--accent-yellow)] mt-2">
                         {match.puntosPorGanar} {t("points").toUpperCase()}
                       </p>
+                      {match.prueba.categoria === "negro" && (
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-gray-700">
+                            {t("modifyTeams")}
+                          </label>
+                          <select
+                            className={`p-2 rounded-md`}
+                            onChange={(e) =>
+                              handleModifyTeams(
+                                match.id,
+                                e.target.value,
+                                "equipo1"
+                              )
+                            }
+                          >
+                            <option value="">{t("selectTeam")}</option>
+                            {teams.map((team) => (
+                              <option key={team.id} value={team.id}>
+                                {team.nombre}
+                              </option>
+                            ))}
+                          </select>
+                          <select
+                            className={`p-2 rounded-md`}
+                            onChange={(e) =>
+                              handleModifyTeams(
+                                match.id,
+                                e.target.value,
+                                "equipo2"
+                              )
+                            }
+                          >
+                            <option value="">{t("selectTeam")}</option>
+                            {teams.map((team) => (
+                              <option key={team.id} value={team.id}>
+                                {team.nombre}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
 
                       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <Button

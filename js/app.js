@@ -346,21 +346,22 @@ const TournamentProvider = ({ children }) => {
     }
     let teamsToPair = [...tournament.teams];
     let restingTeam = null;
-    if (numTeams === 4 && tournament.rounds.length > 0) {
-      const lastRound = tournament.rounds[tournament.rounds.length - 1];
-      const winnersOfLastRound = lastRound.enfrentamientos
-        .map((m) => m.resultado)
-        .filter(Boolean);
-      if (winnersOfLastRound.length > 0) {
-        restingTeam = tournament.teams.find(
-          (t) => t.id === winnersOfLastRound[0]
-        );
-        if (restingTeam)
-          teamsToPair = teamsToPair.filter(
-            (t) => !winnersOfLastRound.includes(t.id)
-          );
-      }
-    } else if (numTeams % 2 !== 0) {
+    // if (numTeams === 4 && tournament.rounds.length > 0) {
+    //   const lastRound = tournament.rounds[tournament.rounds.length - 1];
+    //   const winnersOfLastRound = lastRound.enfrentamientos
+    //     .map((m) => m.resultado)
+    //     .filter(Boolean);
+    //   if (winnersOfLastRound.length > 0) {
+    //     restingTeam = tournament.teams.find(
+    //       (t) => t.id === winnersOfLastRound[0]
+    //     );
+    //     if (restingTeam)
+    //       teamsToPair = teamsToPair.filter(
+    //         (t) => !winnersOfLastRound.includes(t.id)
+    //       );
+    //   }
+    // } else
+    if (numTeams % 2 !== 0) {
       const lastRoundRestingId =
         tournament.rounds[tournament.rounds.length - 1]?.restingTeam?.id;
       const potentialRestingTeams = teamsToPair.filter(
@@ -1446,6 +1447,50 @@ const FinishedView = () => {
       )}
 
       <GeneralStandings />
+      <div className="mt-8">
+        <h3 className="text-2xl font-bold text-gray-800 mb-4">
+          {t("roundHistoryTitle")}
+        </h3>
+        <div className="space-y-6">
+          {rounds.map((round) => (
+            <div key={round.numero} className="border-b pb-4">
+              <h4 className="text-xl font-semibold text-gray-700 mb-2">
+                {t("currentRound", { round: round.numero })}
+              </h4>
+              <ul className="space-y-2">
+                {round.enfrentamientos.map((match) => {
+                  const team1 =
+                    teams.find((t) => t.id === match.equipo1)?.nombre || "";
+                  const team2 =
+                    teams.find((t) => t.id === match.equipo2)?.nombre || "";
+                  const winner = match.resultado
+                    ? teams.find((t) => t.id === match.resultado)?.nombre
+                    : t("noActiveRound");
+                  return (
+                    <li
+                      key={match.id}
+                      className="p-2 bg-gray-50 rounded-md text-sm"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span>
+                          {team1} vs {team2}
+                        </span>
+                        <span className="font-bold text-green-600">
+                          {t("winner")}: {winner}
+                        </span>
+                      </div>
+                      <div className="text-gray-500">
+                        {t("test")}: {match.prueba.nombre} (+
+                        {match.puntosPorGanar} pts)
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="mt-8 flex justify-center space-x-4">
         <Button onClick={exportResultsToTxt}>{t("exportResultsToTxt")}</Button>

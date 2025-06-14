@@ -1,9 +1,9 @@
-import en from './en.js';
-import es from './es.js';
-import ca from './ca.js';
+import en from "./en.js";
+import es from "./es.js";
+import ca from "./ca.js";
 
 export const translations = {
-    en,
-    es,
-    ca
+  en,
+  es,
+  ca,
 };

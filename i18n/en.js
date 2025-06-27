@@ -88,4 +88,7 @@ export default {
   lap: "Lap",
   alertOnFinish: "Alert on finish",
   enableNotifications: "Enable notifications",
+  edit: "Edit",
+  cancel: "Cancel",
+  continueToAssignPoints: "Continue to Assign Points",
 };

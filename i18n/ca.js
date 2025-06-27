@@ -89,4 +89,7 @@ export default {
   lap: "Volta",
   alertOnFinish: "Alerta en finalitzar",
   enableNotifications: "Activar notificacions",
+  edit: "Editar",
+  cancel: "Cancel·lar",
+  continueToAssignPoints: "Continuar a Assignar Punts",
 };

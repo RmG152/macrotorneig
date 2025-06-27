@@ -89,4 +89,7 @@ export default {
   lap: "Vuelta",
   alertOnFinish: "Alerta al finalizar",
   enableNotifications: "Activar notificaciones",
+  edit: "Editar",
+  cancel: "Cancelar",
+  continueToAssignPoints: "Continuar a Asignar Puntos",
 };

@@ -509,7 +509,7 @@ const TournamentProvider = ({ children }) => {
     const isLastRound = tournament.currentRound >= tournament.config.maxRounds;
     const isRoundComplete = currentRoundData?.completada;
     const newStatus =
-      isLastRound && isRoundComplete ? "assign_points" : tournament.status;
+      isLastRound && isRoundComplete ? "review_history" : tournament.status;
     saveTournamentState({
       ...tournament,
       rounds: updatedRounds,
@@ -545,6 +545,43 @@ const TournamentProvider = ({ children }) => {
       status: "results",
     });
   };
+
+  const editMatchResult = (roundNumber, matchId, newWinnerId) => {
+    let originalWinnerId = null;
+    let points = 0;
+
+    const updatedRounds = tournament.rounds.map(r => {
+        if (r.numero === roundNumber) {
+            const updatedEnfrentamientos = r.enfrentamientos.map(m => {
+                if (m.id === matchId) {
+                    originalWinnerId = m.resultado;
+                    points = m.puntosPorGanar;
+                    return { ...m, resultado: newWinnerId };
+                }
+                return m;
+            });
+            return { ...r, enfrentamientos: updatedEnfrentamientos };
+        }
+        return r;
+    });
+
+    const updatedTeams = tournament.teams.map(t => {
+        if (t.id === originalWinnerId) {
+            return { ...t, puntosTotales: t.puntosTotales - points };
+        }
+        if (t.id === newWinnerId) {
+            return { ...t, puntosTotales: t.puntosTotales + points };
+        }
+        return t;
+    });
+
+    saveTournamentState({
+        ...tournament,
+        rounds: updatedRounds,
+        teams: updatedTeams,
+    });
+  };
+
   const setTournamentStatus = (newStatus) =>
     saveTournamentState({ ...tournament, status: newStatus });
   const value = {
@@ -564,6 +601,7 @@ const TournamentProvider = ({ children }) => {
     updateMatchTeams,
     assignExtraPoints,
     setTournamentStatus,
+    editMatchResult,
   };
   return (
     <TournamentContext.Provider value={value}>
@@ -1236,9 +1274,16 @@ const CurrentRoundView = ({ round }) => {
 };
 
 const AllRoundsHistory = () => {
-  const { rounds, teams } = useTournament();
+  const { rounds, teams, status, editMatchResult, setTournamentStatus } = useTournament();
   const { t } = useLanguage();
   const getTeam = (teamId) => teams.find((t) => t.id === teamId);
+  const [editingMatch, setEditingMatch] = useState(null);
+
+  const handleEdit = (roundNumber, matchId, newWinnerId) => {
+    editMatchResult(roundNumber, matchId, newWinnerId);
+    setEditingMatch(null);
+  };
+
   if (rounds.length === 0)
     return (
       <Card className="text-center">
@@ -1249,7 +1294,14 @@ const AllRoundsHistory = () => {
 
   return (
     <Card>
-      <h2 className="text-2xl font-bold mb-4">{t("roundHistoryTitle")}</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">{t("roundHistoryTitle")}</h2>
+        {status === 'review_history' && (
+            <Button onClick={() => setTournamentStatus('assign_points')}>
+                {t('continueToAssignPoints')}
+            </Button>
+        )}
+      </div>
       <div className="space-y-6">
         {rounds
           .slice()
@@ -1277,6 +1329,9 @@ const AllRoundsHistory = () => {
                   const team1 = getTeam(match.equipo1),
                     team2 = getTeam(match.equipo2),
                     winner = match.resultado ? getTeam(match.resultado) : null;
+                  
+                  const isEditing = editingMatch === match.id;
+
                   return (
                     <li
                       key={match.id}
@@ -1286,16 +1341,36 @@ const AllRoundsHistory = () => {
                         <span>
                           {team1?.nombre} vs {team2?.nombre}
                         </span>
-                        {winner && (
+                        {winner && !isEditing && (
                           <span className="font-bold text-[var(--accent-green)]">
                             {t("winner")}: {winner.nombre}
                           </span>
+                        )}
+                        {(status === 'review_history' || (status === 'in_progress' && winner)) && !isEditing && (
+                            <Button onClick={() => setEditingMatch(match.id)} variant="secondary" className="text-xs">
+                                {t('edit')}
+                            </Button>
                         )}
                       </div>
                       <div className="text-[var(--text-secondary)]">
                         {t("test")}: {match.prueba.nombre} (+
                         {match.puntosPorGanar} pts)
                       </div>
+                      {isEditing && (
+                        <div className="mt-2">
+                          <select
+                            defaultValue={winner?.id}
+                            onChange={(e) => handleEdit(round.numero, match.id, e.target.value)}
+                            className="p-2 border border-[var(--border-primary)] rounded-md bg-[var(--bg-primary)] text-[var(--text-primary)]"
+                          >
+                            <option value={team1.id}>{team1.nombre}</option>
+                            <option value={team2.id}>{team2.nombre}</option>
+                          </select>
+                          <Button onClick={() => setEditingMatch(null)} variant="secondary" className="text-xs ml-2">
+                            {t('cancel')}
+                          </Button>
+                        </div>
+                      )}
                     </li>
                   );
                 })}
@@ -1674,6 +1749,12 @@ const Dashboard = () => {
   const { t } = useLanguage();
   const [view, setView] = useState("current");
 
+  useEffect(() => {
+    if (status === 'review_history') {
+      setView('history');
+    }
+  }, [status]);
+
   const currentRoundData = rounds.find((r) => r.numero === currentRound);
   const canStartNewRound =
     status === "in_progress" &&
@@ -1707,7 +1788,7 @@ const Dashboard = () => {
                       "¿Seguro que quieres finalizar el torneo y asignar puntos extra?"
                   )
                 ) {
-                  setTournamentStatus("assign_points");
+                  setTournamentStatus("review_history");
                 }
               }}
               variant="secondary"
@@ -1969,6 +2050,9 @@ function MainApp() {
       content = <SetupWizard />;
       break;
     case "in_progress":
+      content = <Dashboard />;
+      break;
+    case "review_history":
       content = <Dashboard />;
       break;
     case "assign_points":

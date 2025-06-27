@@ -66,4 +66,6 @@ export default {
   confirmEndTournament: "Estàs segur que vols finalitzar el torneig i assignar punts extra?",
   hidePoints: "Amagar punts i colors",
   rules: "Regles",
+  changelog: "Registre de canvis",
+  roundsMinError: "El nombre de rondes ha de ser almenys 1.",
 };

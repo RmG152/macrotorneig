@@ -695,6 +695,7 @@ const SetupWizard = () => {
   const { t } = useLanguage();
   const [playerName, setPlayerName] = useState("");
   const [editableTeams, setEditableTeams] = useState([]);
+  const [roundsError, setRoundsError] = useState("");
 
   useEffect(() => {
     if (teams.length > 0) setEditableTeams(teams.map((t) => ({ ...t })));
@@ -734,11 +735,17 @@ const SetupWizard = () => {
             <Input
               type="number"
               value={config.maxRounds}
-              onChange={(e) =>
-                updateConfig({ maxRounds: parseInt(e.target.value) || 1 })
-              }
-              min="1"
+              onChange={(e) => {
+                const val = parseInt(e.target.value) || 1;
+                updateConfig({ maxRounds: val });
+                if (val < 1) setRoundsError(t("roundsMinError") || "El número de rondas debe ser al menos 1.");
+                else setRoundsError("");
+              }}
+              min={1}
             />
+            {roundsError && (
+              <p className="text-red-600 text-sm mt-2">{roundsError}</p>
+            )}
           </div>
         );
       case 2:
@@ -869,7 +876,13 @@ const SetupWizard = () => {
         </Button>
         {step < totalSteps ? (
           <Button
-            onClick={() => setStep((s) => s + 1)}
+            onClick={() => {
+              if (step === 1 && config.maxRounds < 1) {
+                setRoundsError(t("roundsMinError") || "El número de rondas debe ser al menos 1.");
+                return;
+              }
+              setStep((s) => s + 1);
+            }}
             disabled={step === 2 && players.length < config.minTeamSize}
             className="flex items-center"
           >

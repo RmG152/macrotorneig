@@ -42,6 +42,7 @@ export default {
   noActiveRound:
     "No hi ha cap ronda activa. Inicia una nova ronda per començar!",
   revealTest: "Revelar Prova ({points} pts)",
+  revealTestSinPuntos: "Revelar Prova",
   winner: "Guanyador",
   wins: "Guanya",
   test: "Prova",
@@ -64,5 +65,5 @@ export default {
   submitPoints: "Enviar Punts",
   endTournamentNow: "Finalitzar torneig ara",
   confirmEndTournament: "Estàs segur que vols finalitzar el torneig i assignar punts extra?",
-
+  hidePoints: "Amagar punts i colors",
 };

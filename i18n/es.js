@@ -42,6 +42,7 @@ export default {
   noActiveRound:
     "No hay ninguna ronda activa. ¡Inicia una nueva ronda para empezar!",
   revealTest: "Revelar Prueba ({points} pts)",
+  revealTestSinPuntos: "Revelar Prueba",
   winner: "Ganador",
   wins: "Gana",
   test: "Prueba",
@@ -64,4 +65,5 @@ export default {
   submitPoints: "Enviar Puntos",
   endTournamentNow: "Finalizar torneo ahora",
   confirmEndTournament: "¿Seguro que quieres finalizar el torneo y asignar puntos extra?",
+  hidePoints: "Ocultar puntos y colores",
 };

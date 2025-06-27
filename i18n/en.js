@@ -41,6 +41,7 @@ export default {
   restingTeam: "<strong>{teamName}</strong> rests this round.",
   noActiveRound: "There is no active round. Start a new round to begin!",
   revealTest: "Reveal Test ({points} pts)",
+  revealTestSinPuntos: "Reveal Test",
   winner: "Winner",
   wins: "Wins",
   test: "Test",
@@ -63,4 +64,5 @@ export default {
   submitPoints: "Submit Points",
   endTournamentNow: "End tournament now",
   confirmEndTournament: "Are you sure you want to end the tournament and assign extra points?",
+  hidePoints: "Hide points and colors",
 };

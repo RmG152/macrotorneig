@@ -8,6 +8,7 @@ const { useState, useEffect, createContext, useContext, useMemo } = React;
 const LanguageContext = createContext();
 const TournamentContext = createContext();
 const ThemeContext = createContext();
+const PointsVisibilityContext = createContext();
 
 const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState("ca");
@@ -157,6 +158,27 @@ const MoonIcon = ({ className }) => (
       strokeWidth="2"
       d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
     />
+  </svg>
+);
+
+const PaletteIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    style={{ display: "inline-block", verticalAlign: "middle" }}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M12 3C7.03 3 3 7.03 3 12c0 3.87 3.13 7 7 7h1a1 1 0 011 1v1a1 1 0 001 1c4.97 0 9-4.03 9-9s-4.03-9-9-9z"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="8.5" cy="10.5" r="1.2" fill="#fbbf24" />
+    <circle cx="15.5" cy="7.5" r="1.2" fill="#60a5fa" />
+    <circle cx="15.5" cy="14.5" r="1.2" fill="#34d399" />
   </svg>
 );
 
@@ -527,6 +549,16 @@ const TournamentProvider = ({ children }) => {
 };
 const useTournament = () => useContext(TournamentContext);
 
+const PointsVisibilityProvider = ({ children }) => {
+  const [hidePoints, setHidePoints] = useState(true); // Por defecto activado
+  return (
+    <PointsVisibilityContext.Provider value={{ hidePoints, setHidePoints }}>
+      {children}
+    </PointsVisibilityContext.Provider>
+  );
+};
+const usePointsVisibility = () => useContext(PointsVisibilityContext);
+
 // --- COMPONENTES DE UI (ADAPTADOS A CSS VARS)---
 
 const LanguageSwitcher = () => {
@@ -554,17 +586,42 @@ const LanguageSwitcher = () => {
 const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
   return (
+    <div className="absolute top-4 right-4 flex items-center gap-2 z-50">
+      <PointsVisibilitySwitcher />
+      <button
+        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        className="p-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-[var(--interactive-highlight)]"
+        style={{
+          backgroundColor: "var(--bg-primary)",
+          color: "var(--text-primary)",
+          border: "1px solid var(--border-primary)",
+        }}
+        title="Cambiar tema"
+      >
+        {theme === "light" ? <MoonIcon /> : <SunIcon />}
+      </button>
+    </div>
+  );
+};
+
+const PointsVisibilitySwitcher = () => {
+  const { hidePoints, setHidePoints } = usePointsVisibility();
+  const { t } = useLanguage();
+  return (
     <button
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="absolute top-4 right-4 p-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-[var(--interactive-highlight)]"
-      style={{
-        backgroundColor: "var(--bg-primary)",
-        color: "var(--text-primary)",
-        border: "1px solid var(--border-primary)",
-      }}
-      title="Cambiar tema"
+      onClick={() => setHidePoints(!hidePoints)}
+      className={`p-2 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-[var(--interactive-highlight)]
+        border border-[var(--border-primary)]
+        bg-[var(--bg-primary)]
+        text-[var(--text-primary)]
+        transition-colors
+        ${hidePoints ? "opacity-60 ring-2 ring-[var(--accent-yellow)]" : ""}
+      `}
+      title={t("hidePoints") || "Ocultar puntos y colores"}
+      aria-label={t("hidePoints") || "Ocultar puntos y colores"}
+      style={{ marginRight: "0.25rem" }}
     >
-      {theme === "light" ? <MoonIcon /> : <SunIcon />}
+      <PaletteIcon className="h-5 w-5" />
     </button>
   );
 };
@@ -945,6 +1002,7 @@ const TestManager = () => {
 const CurrentRoundView = ({ round }) => {
   const { teams, registerResult, updateMatchTeams } = useTournament();
   const { t } = useLanguage();
+  const { hidePoints } = usePointsVisibility();
   const [revealedMatch, setRevealedMatch] = useState(null);
   const getTeam = (teamId) => teams.find((t) => t.id === teamId);
 
@@ -993,7 +1051,7 @@ const CurrentRoundView = ({ round }) => {
                 match.resultado
                   ? "bg-[var(--bg-secondary)]"
                   : "bg-[var(--bg-primary)]"
-              }`}
+              } ${!hidePoints && !match.resultado ? categoryBorderColors[match.prueba.categoria] + " border-2" : ""}`}
             >
               <div className="flex justify-between items-center">
                 <span className="font-bold text-lg text-[var(--accent-blue)]">
@@ -1010,8 +1068,8 @@ const CurrentRoundView = ({ round }) => {
               {match.resultado ? (
                 <div className="mt-4 text-center">
                   <p className="font-semibold text-[var(--accent-green)]">
-                    {t("winner")}: {getTeam(match.resultado).nombre} (+
-                    {match.puntosPorGanar} pts)
+                    {t("winner")}: {getTeam(match.resultado).nombre}
+                    {!hidePoints && <> (+{match.puntosPorGanar} pts)</>}
                   </p>
                   <p className="text-sm text-[var(--text-secondary)]">
                     {t("test")}: {match.prueba.nombre}
@@ -1023,13 +1081,13 @@ const CurrentRoundView = ({ round }) => {
                     <button
                       onClick={() => setRevealedMatch(match.id)}
                       className={`w-full py-2 px-4 rounded-md border-2 border-dashed ${
-                        categoryBorderColors[match.prueba.categoria]
+                        !hidePoints ? categoryBorderColors[match.prueba.categoria] : ""
                       } text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]`}
                     >
-                      {t("revealTest", { points: match.puntosPorGanar })}
+                      {t((hidePoints ? "revealTestSinPuntos" : "revealTest"), { points: hidePoints ? "" : match.puntosPorGanar })}
                     </button>
                   ) : (
-                    <div className="p-4 bg-[var(--accent-yellow)]/10 rounded-lg text-center border border-[var(--accent-yellow)]">
+                    <div className={`p-4 ${ "bg-[var(--accent-yellow)]/10 border border-[var(--accent-yellow)]"} rounded-lg text-center`}>
                       <h4 className="text-lg font-bold">
                         {match.prueba.nombre}
                       </h4>
@@ -1592,7 +1650,9 @@ const App = () => (
   <ThemeProvider>
     <LanguageProvider>
       <TournamentProvider>
-        <MainApp />
+        <PointsVisibilityProvider>
+          <MainApp />
+        </PointsVisibilityProvider>
       </TournamentProvider>
     </LanguageProvider>
   </ThemeProvider>

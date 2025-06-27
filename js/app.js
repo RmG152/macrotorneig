@@ -1802,7 +1802,7 @@ const Dashboard = () => {
       </div>
 
       <div className="mb-6 border-b border-[var(--border-primary)]">
-        <nav className="flex space-x-2 -mb-px">
+        <nav className="flex flex-wrap justify-center sm:justify-start space-x-2 -mb-px">
           {tabs.map((tab) => (
             <button
               key={tab.id}

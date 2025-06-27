@@ -1,6 +1,7 @@
 /** @jsx React.createElement */
 import { initialTestsData, getPointsForCategory } from "./data/tests.js";
 import { translations } from "./i18n/index.js";
+import { rules } from "./data/rules.js";
 
 const { useState, useEffect, createContext, useContext, useMemo } = React;
 
@@ -1336,6 +1337,40 @@ const GeneralStandings = () => {
   );
 };
 
+const RulesViewer = () => {
+  const { language } = useLanguage();
+  const { t } = useLanguage();
+  const [currentRules, setCurrentRules] = useState(rules[language]);
+
+  useEffect(() => {
+    setCurrentRules(rules[language] || rules.es);
+  }, [language]);
+
+  return (
+    <Card>
+      <h2 className="text-3xl font-extrabold text-[var(--text-primary)] mb-6">
+        {currentRules.title}
+      </h2>
+      <div className="space-y-6">
+        {currentRules.sections.map((section, index) => (
+          <div
+            key={index}
+            className="p-4 border border-[var(--border-primary)] rounded-lg bg-[var(--bg-secondary)]"
+          >
+            <h3 className="text-xl font-bold text-[var(--interactive-highlight)] mb-2">
+              {section.title}
+            </h3>
+            <div
+              className="prose prose-sm max-w-none text-[var(--text-secondary)]"
+              dangerouslySetInnerHTML={{ __html: section.content }}
+            />
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+};
+
 const Dashboard = () => {
   const {
     rounds,
@@ -1359,6 +1394,7 @@ const Dashboard = () => {
     { id: "current", label: t("roundsAndStandings") },
     { id: "history", label: t("allRoundsHistory") },
     { id: "tests", label: t("manageTests") },
+    { id: "rules", label: t("rules") },
   ];
 
   return (
@@ -1439,6 +1475,7 @@ const Dashboard = () => {
       )}
       {view === "history" && <AllRoundsHistory />}
       {view === "tests" && <TestManager />}
+      {view === "rules" && <RulesViewer />}
     </div>
   );
 };

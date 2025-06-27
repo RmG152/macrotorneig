@@ -66,4 +66,5 @@ export default {
   endTournamentNow: "Finalizar torneo ahora",
   confirmEndTournament: "¿Seguro que quieres finalizar el torneo y asignar puntos extra?",
   hidePoints: "Ocultar puntos y colores",
+  rules: "Reglas",
 };

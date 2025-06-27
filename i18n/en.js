@@ -65,4 +65,5 @@ export default {
   endTournamentNow: "End tournament now",
   confirmEndTournament: "Are you sure you want to end the tournament and assign extra points?",
   hidePoints: "Hide points and colors",
+  rules: "Rules",
 };

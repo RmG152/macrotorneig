@@ -66,4 +66,5 @@ export default {
   endTournamentNow: "Finalitzar torneig ara",
   confirmEndTournament: "Estàs segur que vols finalitzar el torneig i assignar punts extra?",
   hidePoints: "Amagar punts i colors",
+  rules: "Regles",
 };

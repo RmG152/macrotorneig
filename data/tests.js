@@ -58,7 +58,7 @@ export const initialTestsData = [
   { nombre: "Equip primer demana perdó i regala 1 punt", categoria: "negro" },
   { nombre: "La llauna maleïda (1 Jugador)", categoria: "rojo" },
   { nombre: "La tisorada extrema: Pedra, paper, tisora", categoria: "verde" },
-  { nombre: "Dibuixem al papa, el nostre, no el de Roma! Votació popular amb estil lliure: des del més realista fins al més boig i imaginatiu! Deixa volar la teva creativitat! 🎨✨", categoria: "azul" },
+  { nombre: "Dibuixem al papa! Votació popular amb estil lliure: des del més realista fins al més boig i imaginatiu! Deixa volar la teva creativitat! 🎨✨", categoria: "azul" },
 ];
 
 export const getPointsForCategory = (categoria) => {

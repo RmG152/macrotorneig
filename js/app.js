@@ -1087,16 +1087,32 @@ const CurrentRoundView = ({ round }) => {
                       {t((hidePoints ? "revealTestSinPuntos" : "revealTest"), { points: hidePoints ? "" : match.puntosPorGanar })}
                     </button>
                   ) : (
-                    <div className={`p-4 ${ "bg-[var(--accent-yellow)]/10 border border-[var(--accent-yellow)]"} rounded-lg text-center`}>
-                      <h4 className="text-lg font-bold">
-                        {match.prueba.nombre}
-                      </h4>
+                    <div
+                      className={`p-4 border rounded-lg text-center ${
+                        `${categoryBorderColors[match.prueba.categoria]} border-2`
+                      }`}
+                    >
+                      <h4 className="text-lg font-bold">{match.prueba.nombre}</h4>
                       <p className="text-sm text-[var(--text-secondary)] capitalize">
                         {t(`category_${match.prueba.categoria}`).split(" ")[0]}
                       </p>
-                      <p className="text-xl font-black text-[var(--accent-yellow)] mt-2">
-                        {match.puntosPorGanar} {t("points").toUpperCase()}
-                      </p>
+                        <p
+                          className={`text-xl font-black mt-2 ${
+                            match.prueba.categoria === "negro"
+                              ? "text-black"
+                              : match.prueba.categoria === "rojo"
+                              ? "text-[var(--accent-red)]"
+                              : match.prueba.categoria === "amarillo"
+                              ? "text-[var(--accent-yellow)]"
+                              : match.prueba.categoria === "verde"
+                              ? "text-[var(--accent-green)]"
+                              : match.prueba.categoria === "azul"
+                              ? "text-[var(--accent-blue)]"
+                              : ""
+                          }`}
+                        >
+                          {match.puntosPorGanar} {t("points").toUpperCase()}
+                        </p>
                       {match.prueba.categoria === "negro" && (
                         <div className="mt-4">
                           <label className="block text-sm font-medium text-gray-700">

@@ -48,5 +48,5 @@ body {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   transition: background-color 0.3s, color 0.3s;
-  padding-bottom: 3rem; /* Add padding to prevent footer overlap */
+  padding-bottom: 0; /* Removed padding as footer is fixed and content padding is handled */
 }

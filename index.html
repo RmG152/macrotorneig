@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,13 +20,13 @@
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="css/styles.css" />
   </head>
-  <body class="font-sans">
+  <body class="font-sans h-full min-h-screen flex flex-col overflow-hidden">
     <!-- El contenedor donde se montará la aplicación de React -->
-    <div id="root"></div>
+    <div id="root" class="flex-1 pb-8"></div>
     <!-- Código de la aplicación React -->
     <script type="text/babel" data-type="module" src="js/app.js"></script>
-    <footer class="fixed bottom-0 left-0 right-0 bg-gray-200 p-2">
-      <div class="flex justify-end items-center space-x-4">
+    <footer class="p-4 bg-transparent fixed bottom-0 right-0 left-0 pointer-events-none select-none">
+      <div class="flex justify-end items-center space-x-4 pointer-events-auto select-auto">
         <a
           href="https://github.com/RmG152/macrotorneig/commits/main/"
           target="_blank"
@@ -36,7 +36,7 @@
         >
           Changelog
         </a>
-        <span>v1.0.0</span>
+        <span>v1.0.1</span>
         <span>27/06/2025</span>
       </div>
     </footer>

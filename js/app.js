@@ -1953,7 +1953,7 @@ const FinishedView = () => {
 
       <GeneralStandings />
       <div className="mt-8">
-        <h3 className="text-2xl font-bold text-gray-800 mb-4">
+        <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
           {t("roundHistoryTitle")}
         </h3>
         {/* Mostrar primero los puntos extra asignados */}
@@ -1981,8 +1981,8 @@ const FinishedView = () => {
         {/* Historial de rondas */}
         <div className="space-y-6">
           {rounds.map((round) => (
-            <div key={round.numero} className="border-b pb-4">
-              <h4 className="text-xl font-semibold text-gray-700 mb-2">
+            <div key={round.numero} className="border-b border-[var(--border-primary)] pb-4">
+              <h4 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                 {t("currentRound", { round: round.numero })}
               </h4>
               <ul className="space-y-2">
@@ -1997,7 +1997,7 @@ const FinishedView = () => {
                   return (
                     <li
                       key={match.id}
-                      className="p-2 bg-gray-50 rounded-md text-sm"
+                      className="p-2 bg-[var(--bg-secondary)] rounded-md text-sm"
                     >
                       <div className="flex justify-between items-center">
                         <span>

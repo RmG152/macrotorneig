@@ -183,6 +183,29 @@ const PaletteIcon = ({ className = "h-5 w-5" }) => (
   </svg>
 );
 
+const ToolsIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    className={className}
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+    />
+  </svg>
+);
+
 // --- LÓGICA DEL TORNEO (PROVIDER) (SIN CAMBIOS) ---
 const initialTournamentState = {
   status: "configuring",
@@ -1395,6 +1418,248 @@ const RulesViewer = () => {
   );
 };
 
+const Stopwatch = ({ t }) => {
+  const [time, setTime] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [playSound, setPlaySound] = useState(true);
+  const intervalRef = React.useRef(null);
+
+  const formatTime = (timeInMs) => {
+    const totalSeconds = Math.floor(timeInMs / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(seconds).padStart(2, "0")}`;
+  };
+
+  const handleStartPause = () => {
+    if (isRunning) {
+      clearInterval(intervalRef.current);
+    } else {
+      const startTime = Date.now() - time;
+      intervalRef.current = setInterval(() => {
+        setTime(Date.now() - startTime);
+      }, 1000);
+    }
+    setIsRunning(!isRunning);
+  };
+
+  const handleStop = () => {
+    clearInterval(intervalRef.current);
+    setIsRunning(false);
+    if (time > 0) {
+      setHistory([...history, time]);
+      if (playSound) {
+        const audio = new Audio(
+          "./assets/sounds/alert.mp3"
+        );
+        audio.play();
+      }
+    }
+    setTime(0);
+  };
+
+  const handleReset = () => {
+    clearInterval(intervalRef.current);
+    setIsRunning(false);
+    setTime(0);
+    setHistory([]);
+  };
+
+  return (
+    <Card>
+      <h2 className="text-2xl font-bold mb-4">{t("stopwatch")}</h2>
+      <div className="text-5xl font-mono text-center mb-4 p-4 bg-[var(--bg-secondary)] rounded-lg">
+        {formatTime(time)}
+      </div>
+      <div className="flex justify-center gap-4 mb-4">
+        <Button onClick={handleStartPause} variant="primary">
+          {isRunning ? t("pause") : t("start")}
+        </Button>
+        <Button onClick={handleStop} variant="danger">
+          {t("stop")}
+        </Button>
+        <Button onClick={handleReset} variant="secondary">
+          {t("reset")}
+        </Button>
+      </div>
+      <div className="flex items-center justify-center mb-4">
+        <input
+          type="checkbox"
+          checked={playSound}
+          onChange={() => setPlaySound(!playSound)}
+          className="mr-2"
+        />
+        <label>{t("alertOnStop")}</label>
+      </div>
+      <h3 className="text-xl font-semibold mt-6 mb-2">{t("history")}</h3>
+      <ul className="space-y-2 max-h-40 overflow-y-auto p-2 bg-[var(--bg-secondary)] rounded-md">
+        {history.map((lap, index) => (
+          <li
+            key={index}
+            className="flex justify-between p-2 bg-[var(--bg-primary)] rounded-md"
+          >
+            <span>
+              {t("lap")} {index + 1}
+            </span>
+            <span>{formatTime(lap)}</span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+};
+
+const Countdown = ({ t }) => {
+  const [time, setTime] = useState(0);
+  const [initialTime, setInitialTime] = useState({ h: 0, m: 0, s: 0 });
+  const [isRunning, setIsRunning] = useState(false);
+  const [playSound, setPlaySound] = useState(true);
+  const intervalRef = React.useRef(null);
+
+  useEffect(() => {
+    if (time <= 0 && isRunning) {
+      clearInterval(intervalRef.current);
+      setIsRunning(false);
+      if (playSound) {
+        const audio = new Audio(
+          "./assets/sounds/alert.mp3"
+        );
+        audio.play();
+      }
+      if (Notification.permission === "granted") {
+        new Notification(t("countdownFinished"));
+      }
+    }
+  }, [time, isRunning, playSound, t]);
+
+  const formatTime = (timeInMs) => {
+    const totalSeconds = Math.max(0, Math.ceil(timeInMs / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(seconds).padStart(2, "0")}`;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setInitialTime({ ...initialTime, [name]: parseInt(value) || 0 });
+  };
+
+  const handleStartPause = () => {
+    if (isRunning) {
+      clearInterval(intervalRef.current);
+      setIsRunning(false);
+    } else {
+      let totalMs =
+        (initialTime.h * 3600 + initialTime.m * 60 + initialTime.s) * 1000;
+      if (time > 0) {
+        totalMs = time;
+      }
+      setTime(totalMs);
+
+      if (totalMs > 0) {
+        const endTime = Date.now() + totalMs;
+        intervalRef.current = setInterval(() => {
+          const newTime = endTime - Date.now();
+          setTime(newTime > 0 ? newTime : 0);
+        }, 1000);
+        setIsRunning(true);
+      }
+    }
+  };
+
+  const handleStop = () => {
+    clearInterval(intervalRef.current);
+    setIsRunning(false);
+    setTime(0);
+  };
+
+  const requestNotificationPermission = () => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  };
+
+  return (
+    <Card>
+      <h2 className="text-2xl font-bold mb-4">{t("countdown")}</h2>
+      <div className="text-5xl font-mono text-center mb-4 p-4 bg-[var(--bg-secondary)] rounded-lg">
+        {formatTime(time)}
+      </div>
+      <div className="flex justify-center gap-2 mb-4">
+        <Input
+          type="number"
+          name="h"
+          value={initialTime.h}
+          onChange={handleInputChange}
+          className="w-20 text-center"
+          placeholder="HH"
+        />
+        <Input
+          type="number"
+          name="m"
+          value={initialTime.m}
+          onChange={handleInputChange}
+          className="w-20 text-center"
+          placeholder="MM"
+        />
+        <Input
+          type="number"
+          name="s"
+          value={initialTime.s}
+          onChange={handleInputChange}
+          className="w-20 text-center"
+          placeholder="SS"
+        />
+      </div>
+      <div className="flex justify-center gap-4 mb-4">
+        <Button onClick={handleStartPause} variant="primary">
+          {isRunning ? t("pause") : t("start")}
+        </Button>
+        <Button onClick={handleStop} variant="danger">
+          {t("stop")}
+        </Button>
+      </div>
+      <div className="flex items-center justify-center">
+        <input
+          type="checkbox"
+          checked={playSound}
+          onChange={() => setPlaySound(!playSound)}
+          className="mr-2"
+        />
+        <label className="mr-4">{t("alertOnFinish")}</label>
+        <Button onClick={requestNotificationPermission} variant="secondary">
+          {t("enableNotifications")}
+        </Button>
+      </div>
+    </Card>
+  );
+};
+
+const Tools = () => {
+  const { t } = useLanguage();
+  return (
+    <div className="container mx-auto">
+      <h1 className="text-3xl md:text-4xl font-extrabold mb-6 flex items-center">
+        <ToolsIcon className="w-8 h-8 mr-3" />
+        {t("tools")}
+      </h1>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Stopwatch t={t} />
+        <Countdown t={t} />
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const {
     rounds,
@@ -1419,6 +1684,7 @@ const Dashboard = () => {
     { id: "history", label: t("allRoundsHistory") },
     { id: "tests", label: t("manageTests") },
     { id: "rules", label: t("rules") },
+    { id: "tools", label: t("tools") },
   ];
 
   return (
@@ -1500,6 +1766,7 @@ const Dashboard = () => {
       {view === "history" && <AllRoundsHistory />}
       {view === "tests" && <TestManager />}
       {view === "rules" && <RulesViewer />}
+      {view === "tools" && <Tools />}
     </div>
   );
 };

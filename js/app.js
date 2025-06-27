@@ -898,7 +898,6 @@ const TestManager = () => {
     negro: "bg-black text-white",
     rojo: "bg-red-500 text-white",
     verde: "bg-green-500 text-white",
-    amarillo: "bg-yellow-400 text-black",
     azul: "bg-blue-500 text-white",
   };
   const handleSubmit = (e) => {
@@ -936,7 +935,6 @@ const TestManager = () => {
             <option value="negro">{t("category_negro")}</option>{" "}
             <option value="rojo">{t("category_rojo")}</option>{" "}
             <option value="verde">{t("category_verde")}</option>
-            <option value="amarillo">{t("category_amarillo")}</option>{" "}
             <option value="azul">{t("category_azul")}</option>
           </select>
         </div>
@@ -1012,7 +1010,6 @@ const CurrentRoundView = ({ round }) => {
   const categoryBorderColors = {
     negro: "border-black",
     rojo: "border-[var(--accent-red)]",
-    amarillo: "border-[var(--accent-yellow)]",
     verde: "border-[var(--accent-green)]",
     azul: "border-[var(--accent-blue)]",
   };
@@ -1103,8 +1100,6 @@ const CurrentRoundView = ({ round }) => {
                               ? "text-black"
                               : match.prueba.categoria === "rojo"
                               ? "text-[var(--accent-red)]"
-                              : match.prueba.categoria === "amarillo"
-                              ? "text-[var(--accent-yellow)]"
                               : match.prueba.categoria === "verde"
                               ? "text-[var(--accent-green)]"
                               : match.prueba.categoria === "azul"

@@ -797,9 +797,9 @@ const SetupWizard = () => {
               type="number"
               value={config.maxRounds}
               onChange={(e) => {
-                const val = parseInt(e.target.value) || 1;
+                const val = e.target.value;
                 updateConfig({ maxRounds: val });
-                if (val < 1) setRoundsError(t("roundsMinError") || "El número de rondas debe ser al menos 1.");
+                if (parseInt(val) < 1) setRoundsError(t("roundsMinError") || "El número de rondas debe ser al menos 1.");
                 else setRoundsError("");
               }}
               min={1}
@@ -863,7 +863,7 @@ const SetupWizard = () => {
                 type="number"
                 value={config.minTeamSize}
                 onChange={(e) =>
-                  updateConfig({ minTeamSize: parseInt(e.target.value) || 2 })
+                  updateConfig({ minTeamSize: e.target.value })
                 }
                 min="2"
               />
@@ -876,7 +876,7 @@ const SetupWizard = () => {
                 type="number"
                 value={config.maxTeams}
                 onChange={(e) =>
-                  updateConfig({ maxTeams: parseInt(e.target.value) || 0 })
+                  updateConfig({ maxTeams: e.target.value })
                 }
                 min="0"
               />
@@ -1619,7 +1619,7 @@ const Countdown = ({ t }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setInitialTime({ ...initialTime, [name]: Math.abs(parseInt(value)) || 0 });
+    setInitialTime({ ...initialTime, [name]: value });
   };
 
   const handleStartPause = () => {
@@ -1628,7 +1628,10 @@ const Countdown = ({ t }) => {
       setIsRunning(false);
     } else {
       let totalMs =
-        (initialTime.h * 3600 + initialTime.m * 60 + initialTime.s) * 1000;
+        ((parseInt(initialTime.h) || 0) * 3600 +
+          (parseInt(initialTime.m) || 0) * 60 +
+          (parseInt(initialTime.s) || 0)) *
+        1000;
       if (time > 0) {
         totalMs = time;
       }
@@ -1855,7 +1858,7 @@ const AssignPointsView = () => {
   const { t } = useLanguage();
   const [points, setPoints] = useState({});
   const handleAssignPoints = (teamId, value) =>
-    setPoints({ ...points, [teamId]: parseInt(value) || 0 });
+    setPoints({ ...points, [teamId]: value });
   const handleSubmit = () => assignExtraPoints(points);
 
   return (

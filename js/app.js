@@ -970,9 +970,9 @@ const TestManager = () => {
 
   const categoryColors = {
     negro: "bg-black text-white",
-    rojo: "bg-red-500 text-white",
-    verde: "bg-green-500 text-white",
-    azul: "bg-blue-500 text-white",
+    rojo: "bg-[var(--accent-red)] text-white",
+    verde: "bg-[var(--accent-green)] text-white",
+    azul: "bg-[var(--accent-blue)] text-white",
   };
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -1169,17 +1169,10 @@ const CurrentRoundView = ({ round }) => {
                         {t(`category_${match.prueba.categoria}`).split(" ")[0]}
                       </p>
                         <p
-                          className={`text-xl font-black mt-2 ${
-                            match.prueba.categoria === "negro"
-                              ? "text-black"
-                              : match.prueba.categoria === "rojo"
-                              ? "text-[var(--accent-red)]"
-                              : match.prueba.categoria === "verde"
-                              ? "text-[var(--accent-green)]"
-                              : match.prueba.categoria === "azul"
-                              ? "text-[var(--accent-blue)]"
-                              : ""
-                          }`}
+                          className={`text-xl font-black mt-2`}
+                          style={{
+                            color: `var(--accent-${match.prueba.categoria})`
+                          }}
                         >
                           {match.puntosPorGanar} {t("points").toUpperCase()}
                         </p>
@@ -1594,6 +1587,7 @@ const Countdown = ({ t }) => {
   const [initialTime, setInitialTime] = useState({ h: 0, m: 0, s: 0 });
   const [isRunning, setIsRunning] = useState(false);
   const [playSound, setPlaySound] = useState(true);
+  const [notificationPermission, setNotificationPermission] = useState(Notification.permission);
   const intervalRef = React.useRef(null);
 
   useEffect(() => {
@@ -1625,7 +1619,7 @@ const Countdown = ({ t }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setInitialTime({ ...initialTime, [name]: parseInt(value) || 0 });
+    setInitialTime({ ...initialTime, [name]: Math.abs(parseInt(value)) || 0 });
   };
 
   const handleStartPause = () => {
@@ -1659,7 +1653,9 @@ const Countdown = ({ t }) => {
 
   const requestNotificationPermission = () => {
     if (Notification.permission !== "granted") {
-      Notification.requestPermission();
+      Notification.requestPermission().then(permission => {
+        setNotificationPermission(permission);
+      });
     }
   };
 
@@ -1711,9 +1707,11 @@ const Countdown = ({ t }) => {
           className="mr-2"
         />
         <label className="mr-4">{t("alertOnFinish")}</label>
-        <Button onClick={requestNotificationPermission} variant="secondary">
-          {t("enableNotifications")}
-        </Button>
+        {notificationPermission !== 'granted' && (
+            <Button onClick={requestNotificationPermission} variant="secondary">
+                {t("enableNotifications")}
+            </Button>
+        )}
       </div>
     </Card>
   );
@@ -1942,7 +1940,7 @@ const FinishedView = () => {
       <h2 className="text-2xl font-bold mb-6">{t("winningTeamIs")}</h2>
 
       {winner && (
-        <div className="inline-block p-6 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-lg text-white shadow-2xl mb-8">
+        <div className="inline-block p-6 bg-gradient-to-br from-[var(--accent-yellow)] to-[var(--accent-blue)] rounded-lg text-white shadow-2xl mb-8">
           <TrophyIcon className="w-16 h-16 mx-auto mb-2" />
           <p className="text-3xl font-extrabold">{winner.nombre}</p>
           <p className="text-xl font-bold">

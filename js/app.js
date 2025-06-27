@@ -323,7 +323,7 @@ const TournamentProvider = ({ children }) => {
       } ${funnyNouns[Math.floor(Math.random() * funnyNouns.length)]}`,
       jugadores: [],
       puntosTotales: 0,
-      historialEnfrentamientos: [],
+      historialEnfrentaments: [],
     }));
     let playerIndex = 0;
     while (playerIndex < numPlayers) {
@@ -1124,11 +1124,21 @@ const CurrentRoundView = ({ round }) => {
                         </p>
                       {match.prueba.categoria === "negro" && (
                         <div className="mt-4">
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-sm font-medium mb-2"
+                            style={{
+                              color: "var(--text-primary)"
+                            }}
+                          >
                             {t("modifyTeams")}
                           </label>
+                          <div className="flex gap-2">
                           <select
-                            className={`p-2 rounded-md`}
+                            className="p-2 rounded-md mb-2 w-full bg-[var(--bg-primary)] text-[var(--text-primary)] border border-[var(--border-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--interactive-highlight)]"
+                            style={{
+                              backgroundColor: "var(--bg-primary)",
+                              color: "var(--text-primary)",
+                              borderColor: "var(--border-primary)"
+                            }}
                             onChange={(e) =>
                               handleModifyTeams(
                                 match.id,
@@ -1145,7 +1155,12 @@ const CurrentRoundView = ({ round }) => {
                             ))}
                           </select>
                           <select
-                            className={`p-2 rounded-md`}
+                            className="p-2 rounded-md mb-2 w-full bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--interactive-highlight)]"
+                            style={{
+                              backgroundColor: "var(--bg-secondary)",
+                              color: "var(--text-primary)",
+                              borderColor: "var(--border-primary)"
+                            }}
                             onChange={(e) =>
                               handleModifyTeams(
                                 match.id,
@@ -1161,6 +1176,7 @@ const CurrentRoundView = ({ round }) => {
                               </option>
                             ))}
                           </select>
+                        </div>
                         </div>
                       )}
 

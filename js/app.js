@@ -1271,6 +1271,7 @@ const Dashboard = () => {
     status,
     resetTournament,
     teams,
+    setTournamentStatus,
   } = useTournament();
   const { t } = useLanguage();
   const [view, setView] = useState("current");
@@ -1292,9 +1293,30 @@ const Dashboard = () => {
         <h1 className="text-3xl md:text-4xl font-extrabold">
           {t("dashboardTitle")}
         </h1>
-        <Button onClick={resetTournament} variant="danger" className="text-sm">
-          {t("reset")}
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={resetTournament} variant="danger" className="text-sm">
+            {t("reset")}
+          </Button>
+          {/* Botón para finalizar el torneo antes de tiempo */}
+          {status === "in_progress" && (
+            <Button
+              onClick={() => {
+                if (
+                  window.confirm(
+                    t("confirmEndTournament") ||
+                      "¿Seguro que quieres finalizar el torneo y asignar puntos extra?"
+                  )
+                ) {
+                  setTournamentStatus("assign_points");
+                }
+              }}
+              variant="secondary"
+              className="text-sm"
+            >
+              {t("endTournamentNow") || "Finalizar torneo ahora"}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="mb-6 border-b border-[var(--border-primary)]">

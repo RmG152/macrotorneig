@@ -61,4 +61,6 @@ export default {
   assignPointsInfo:
     "You can assign extra points to teams before finishing the tournament.",
   submitPoints: "Submit Points",
+  endTournamentNow: "End tournament now",
+  confirmEndTournament: "Are you sure you want to end the tournament and assign extra points?",
 };

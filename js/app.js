@@ -209,7 +209,7 @@ const ToolsIcon = ({ className = "h-5 w-5" }) => (
 // --- LÓGICA DEL TORNEO (PROVIDER) (SIN CAMBIOS) ---
 const initialTournamentState = {
   status: "configuring",
-  config: { maxRounds: 10, minTeamSize: 2, maxTeams: 0 },
+  config: { maxRounds: 10, minTeamSize: 2, maxTeams: 0, bonusTestProbability: 0.02 },
   players: [],
   teams: [],
   tests: [],
@@ -383,30 +383,20 @@ const TournamentProvider = ({ children }) => {
       tests: tournament.tests.filter((t) => t.id !== id),
     });
   const startNewRound = () => {
-    const availableTests = tournament.tests.filter((t) => !t.utilizada);
+    const normalTests = tournament.tests.filter((t) => !t.utilizada && t.categoria !== 'bonus');
+    const bonusTests = tournament.tests.filter((t) => !t.utilizada && t.categoria === 'bonus');
+
     const numTeams = tournament.teams.length;
     const numMatches = Math.floor(numTeams / 2);
-    if (availableTests.length < numMatches) {
-      alert("No hay suficientes pruebas disponibles.");
+
+    if (normalTests.length < numMatches) {
+      alert("No hay suficientes pruebas normales disponibles para la ronda.");
       return;
     }
+
     let teamsToPair = [...tournament.teams];
     let restingTeam = null;
-    // if (numTeams === 4 && tournament.rounds.length > 0) {
-    //   const lastRound = tournament.rounds[tournament.rounds.length - 1];
-    //   const winnersOfLastRound = lastRound.enfrentamientos
-    //     .map((m) => m.resultado)
-    //     .filter(Boolean);
-    //   if (winnersOfLastRound.length > 0) {
-    //     restingTeam = tournament.teams.find(
-    //       (t) => t.id === winnersOfLastRound[0]
-    //     );
-    //     if (restingTeam)
-    //       teamsToPair = teamsToPair.filter(
-    //         (t) => !winnersOfLastRound.includes(t.id)
-    //       );
-    //   }
-    // } else
+
     if (numTeams % 2 !== 0) {
       const lastRoundRestingId =
         tournament.rounds[tournament.rounds.length - 1]?.restingTeam?.id;
@@ -419,35 +409,46 @@ const TournamentProvider = ({ children }) => {
         ];
       teamsToPair = teamsToPair.filter((t) => t.id !== restingTeam?.id);
     }
+
     for (let i = teamsToPair.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [teamsToPair[i], teamsToPair[j]] = [teamsToPair[j], teamsToPair[i]];
     }
+
     const enfrentamientos = [];
-    let availableTestsForRound = [...availableTests];
+    let availableNormalTests = [...normalTests];
+    let availableBonusTests = [...bonusTests];
     const usedTestIds = [];
+
     for (let i = 0; i < numMatches; i++) {
       const equipo1 = teamsToPair[i * 2],
         equipo2 = teamsToPair[i * 2 + 1];
       if (!equipo1 || !equipo2) continue;
-      if (availableTestsForRound.length === 0) {
-        alert("Se han agotado las pruebas.");
-        break;
+
+      // Assign a normal test
+      const normalTestIndex = Math.floor(Math.random() * availableNormalTests.length);
+      const normalPrueba = availableNormalTests.splice(normalTestIndex, 1)[0];
+      usedTestIds.push(normalPrueba.id);
+
+      let bonusPrueba = null;
+      // Optionally assign a bonus test if available and probability allows
+      if (availableBonusTests.length > 0 && Math.random() < tournament.config.bonusTestProbability) {
+        const bonusTestIndex = Math.floor(Math.random() * availableBonusTests.length);
+        bonusPrueba = availableBonusTests.splice(bonusTestIndex, 1)[0];
+        usedTestIds.push(bonusPrueba.id);
       }
-      const testIndex = Math.floor(
-        Math.random() * availableTestsForRound.length
-      );
-      const prueba = availableTestsForRound.splice(testIndex, 1)[0];
-      usedTestIds.push(prueba.id);
+
       enfrentamientos.push({
         id: `match_${Date.now()}_${i}`,
         equipo1: equipo1.id,
         equipo2: equipo2.id,
-        prueba: prueba,
+        normalPrueba: normalPrueba,
+        bonusPrueba: bonusPrueba, // Can be null
         resultado: null,
-        puntosPorGanar: prueba.puntos,
+        puntosPorGanar: normalPrueba.puntos,
       });
     }
+
     if (enfrentamientos.length === 0 && restingTeam) {
       saveTournamentState({
         ...tournament,
@@ -465,15 +466,18 @@ const TournamentProvider = ({ children }) => {
       return;
     }
     if (enfrentamientos.length === 0) return;
+
     const newRound = {
       numero: tournament.currentRound + 1,
       enfrentamientos: enfrentamientos,
       completada: false,
       restingTeam: restingTeam,
     };
+
     const updatedTests = tournament.tests.map((t) =>
       usedTestIds.includes(t.id) ? { ...t, utilizada: true } : t
     );
+
     saveTournamentState({
       ...tournament,
       rounds: [...tournament.rounds, newRound],
@@ -488,7 +492,7 @@ const TournamentProvider = ({ children }) => {
       if (r.numero === tournament.currentRound) {
         const updatedMatches = r.enfrentamientos.map((m) =>
           m.id === matchId
-            ? ((pointsAwarded = m.puntosPorGanar),
+            ? ((pointsAwarded = m.normalPrueba.puntos),
               { ...m, resultado: winningTeamId })
             : m
         );
@@ -555,7 +559,7 @@ const TournamentProvider = ({ children }) => {
             const updatedEnfrentamientos = r.enfrentamientos.map(m => {
                 if (m.id === matchId) {
                     originalWinnerId = m.resultado;
-                    points = m.puntosPorGanar;
+                    points = m.normalPrueba.puntos;
                     return { ...m, resultado: newWinnerId };
                 }
                 return m;
@@ -966,6 +970,8 @@ const TestManager = () => {
   const { tests, addTest, removeTest } = useTournament();
   const { t } = useLanguage();
   const [nombre, setNombre] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [jugadores, setJugadores] = useState("EQUIPS");
   const [categoria, setCategoria] = useState("azul");
 
   const categoryColors = {
@@ -977,8 +983,10 @@ const TestManager = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (nombre.trim()) {
-      addTest({ nombre, categoria });
+      addTest({ nombre, descripcion, jugadores, categoria });
       setNombre("");
+      setDescripcion("");
+      setJugadores("EQUIPS");
       setCategoria("azul");
     }
   };
@@ -989,6 +997,19 @@ const TestManager = () => {
         <ClipboardListIcon className="mr-2 w-6" />
         {t("testManagerTitle")}
       </h2>
+      <div className="mb-4">
+        <label className="block mb-2 text-sm font-medium text-[var(--text-secondary)]">
+          {t("bonusTestProbability")}
+        </label>
+        <Input
+          type="number"
+          step="0.01"
+          min="0"
+          max="1"
+          value={config.bonusTestProbability}
+          onChange={(e) => updateConfig({ bonusTestProbability: parseFloat(e.target.value) || 0 })}
+        />
+      </div>
       <form
         onSubmit={handleSubmit}
         className="mb-6 p-4 border border-[var(--border-primary)] rounded-lg bg-[var(--bg-secondary)]"
@@ -1001,6 +1022,22 @@ const TestManager = () => {
             placeholder={t("testName")}
             className="md:col-span-2"
           />
+          <Input
+            type="text"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            placeholder={t("testDescription")}
+            className="md:col-span-3"
+          />
+          <select
+            value={jugadores}
+            onChange={(e) => setJugadores(e.target.value)}
+            className="p-2 border border-[var(--border-primary)] rounded-md bg-[var(--bg-primary)] text-[var(--text-primary)]"
+          >
+            <option value="EQUIPS">{t("players_EQUIPS")}</option>
+            <option value="1Jugador">{t("players_1Jugador")}</option>
+            <option value="2Jugadores">{t("players_2Jugadores")}</option>
+          </select>
           <select
             value={categoria}
             onChange={(e) => setCategoria(e.target.value)}
@@ -1010,6 +1047,7 @@ const TestManager = () => {
             <option value="rojo">{t("category_rojo")}</option>{" "}
             <option value="verde">{t("category_verde")}</option>
             <option value="azul">{t("category_azul")}</option>
+            <option value="bonus">{t("category_bonus")}</option>
           </select>
         </div>
         <Button
@@ -1051,6 +1089,16 @@ const TestManager = () => {
                 >
                   {test.nombre}
                 </span>
+                {test.descripcion && (
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    {test.descripcion}
+                  </p>
+                )}
+                {test.jugadores && (
+                  <p className="text-xs text-[var(--text-secondary)] mt-1">
+                    {t("players")}: {test.jugadores}
+                  </p>
+                )}
               </div>
               {!test.utilizada && (
                 <button
@@ -1141,11 +1189,16 @@ const CurrentRoundView = ({ round }) => {
                 <div className="mt-4 text-center">
                   <p className="font-semibold text-[var(--accent-green)]">
                     {t("winner")}: {getTeam(match.resultado).nombre}
-                    {!hidePoints && <> (+{match.puntosPorGanar} pts)</>}
+                    {!hidePoints && <> (+{match.normalPrueba.puntos} pts)</>}
                   </p>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    {t("test")}: {match.prueba.nombre}
+                    {t("test")}: {match.normalPrueba.nombre}
                   </p>
+                  {match.bonusPrueba && (
+                    <p className="text-sm text-[var(--text-secondary)]">
+                      {t("bonusTest")}: {match.bonusPrueba.nombre}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="mt-4">
@@ -1153,30 +1206,40 @@ const CurrentRoundView = ({ round }) => {
                     <button
                       onClick={() => setRevealedMatch(match.id)}
                       className={`w-full py-2 px-4 rounded-md border-2 border-dashed ${
-                        !hidePoints ? categoryBorderColors[match.prueba.categoria] : ""
+                        !hidePoints ? categoryBorderColors[match.normalPrueba.categoria] : ""
                       } text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]`}
                     >
-                      {t((hidePoints ? "revealTestSinPuntos" : "revealTest"), { points: hidePoints ? "" : match.puntosPorGanar })}
+                      {t((hidePoints ? "revealTestSinPuntos" : "revealTest"), { points: hidePoints ? "" : match.normalPrueba.puntos })}
                     </button>
                   ) : (
                     <div
                       className={`p-4 border rounded-lg text-center ${
-                        `${categoryBorderColors[match.prueba.categoria]} border-2`
+                        `${categoryBorderColors[match.normalPrueba.categoria]} border-2`
                       }`}
                     >
-                      <h4 className="text-lg font-bold">{match.prueba.nombre}</h4>
+                      <h4 className="text-lg font-bold">{match.normalPrueba.nombre}</h4>
+                      {match.normalPrueba.descripcion && (
+                        <p className="text-sm text-[var(--text-secondary)] mt-1">
+                          {match.normalPrueba.descripcion}
+                        </p>
+                      )}
+                      {match.normalPrueba.jugadores && (
+                        <p className="text-sm text-[var(--text-secondary)] mt-1">
+                          {t("players")}: {match.normalPrueba.jugadores}
+                        </p>
+                      )}
                       <p className="text-sm text-[var(--text-secondary)] capitalize">
-                        {t(`category_${match.prueba.categoria}`).split(" ")[0]}
+                        {t(`category_${match.normalPrueba.categoria}`).split(" ")[0]}
                       </p>
                         <p
                           className={`text-xl font-black mt-2`}
                           style={{
-                            color: `var(--accent-${match.prueba.categoria})`
+                            color: `var(--accent-${match.normalPrueba.categoria})`
                           }}
                         >
-                          {match.puntosPorGanar} {t("points").toUpperCase()}
+                          {match.normalPrueba.puntos} {t("points").toUpperCase()}
                         </p>
-                      {match.prueba.categoria === "negro" && (
+                      {match.normalPrueba.categoria === "negro" && (
                         <div className="mt-4">
                           <label className="block text-sm font-medium mb-2"
                             style={{
@@ -1231,6 +1294,12 @@ const CurrentRoundView = ({ round }) => {
                             ))}
                           </select>
                         </div>
+                        </div>
+                      )}
+                      {match.bonusPrueba && (
+                        <div className="mt-4 p-2 border border-[var(--border-primary)] rounded-md">
+                          <h5 className="font-bold text-md">{t("bonusTest")}: {match.bonusPrueba.nombre}</h5>
+                          <p className="text-sm text-[var(--text-secondary)]">{match.bonusPrueba.descripcion}</p>
                         </div>
                       )}
 
@@ -1346,8 +1415,29 @@ const AllRoundsHistory = () => {
                         )}
                       </div>
                       <div className="text-[var(--text-secondary)]">
-                        {t("test")}: {match.prueba.nombre} (+
-                        {match.puntosPorGanar} pts)
+                        {t("test")}: {match.normalPrueba.nombre}
+                        {match.normalPrueba.descripcion && (
+                          <p className="text-xs text-[var(--text-secondary)] mt-1">
+                            {match.normalPrueba.descripcion}
+                          </p>
+                        )}
+                        {match.normalPrueba.jugadores && (
+                          <p className="text-xs text-[var(--text-secondary)] mt-1">
+                            {t("players")}: {match.normalPrueba.jugadores}
+                          </p>
+                        )}
+                        (+
+                        {match.normalPrueba.puntos} pts)
+                        {match.bonusPrueba && (
+                          <p className="text-sm text-[var(--text-secondary)] mt-1">
+                            {t("bonusTest")}: {match.bonusPrueba.nombre}
+                            {match.bonusPrueba.descripcion && (
+                              <span className="text-xs text-[var(--text-secondary)] ml-1">
+                                ({match.bonusPrueba.descripcion})
+                              </span>
+                            )}
+                          </p>
+                        )}
                       </div>
                       {isEditing && (
                         <div className="mt-2">

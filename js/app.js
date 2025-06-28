@@ -1121,7 +1121,7 @@ const TestManager = () => {
 };
 
 const CurrentRoundView = ({ round }) => {
-  const { teams, registerResult, updateMatchTeams } = useTournament();
+  const { teams, registerResult, updateMatchTeams, config } = useTournament();
   const { t } = useLanguage();
   const { hidePoints } = usePointsVisibility();
   const [revealedMatch, setRevealedMatch] = useState(null);
@@ -1146,7 +1146,7 @@ const CurrentRoundView = ({ round }) => {
   return (
     <div>
       <h3 className="text-2xl font-bold mb-4">
-        {t("currentRound", { round: round.numero })}
+        {t("currentRound", { round: round.numero }) +" / "+ config.maxRounds}
       </h3>
       {round.restingTeam && (
         <div

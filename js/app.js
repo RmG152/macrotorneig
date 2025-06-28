@@ -1823,8 +1823,81 @@ const Tools = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Stopwatch t={t} />
         <Countdown t={t} />
+        <RandomTestPicker />
       </div>
     </div>
+  );
+};
+
+const RandomTestPicker = () => {
+  const { tests } = useTournament();
+  const { t } = useLanguage();
+  const [selectedCategory, setSelectedCategory] = useState("azul");
+  const [randomTest, setRandomTest] = useState(null);
+
+  const categories = [
+    { value: "negro", label: t("category_negro") },
+    { value: "rojo", label: t("category_rojo") },
+    { value: "verde", label: t("category_verde") },
+    { value: "azul", label: t("category_azul") },
+    { value: "bonus", label: t("category_bonus") },
+  ];
+
+  const pickRandomTest = () => {
+    const availableTests = tests.filter(
+      (test) => test.categoria === selectedCategory
+    );
+    if (availableTests.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableTests.length);
+      setRandomTest(availableTests[randomIndex]);
+    } else {
+      setRandomTest(null);
+      alert(t("noTestsInCategory"));
+    }
+  };
+
+  return (
+    <Card>
+      <h2 className="text-2xl font-bold mb-4">{t("randomTestPickerTitle")}</h2>
+      <div className="mb-4">
+        <label className="block mb-2 text-sm font-medium text-[var(--text-secondary)]">
+          {t("selectCategory")}
+        </label>
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="p-2 border border-[var(--border-primary)] rounded-md bg-[var(--bg-primary)] text-[var(--text-primary)] w-full"
+        >
+          {categories.map((cat) => (
+            <option key={cat.value} value={cat.value}>
+              {cat.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <Button onClick={pickRandomTest} className="w-full mb-4">
+        {t("pickRandomTest")}
+      </Button>
+
+      {randomTest && (
+        <div className="p-4 bg-[var(--bg-secondary)] rounded-md">
+          <h3 className="text-xl font-bold mb-2">{randomTest.nombre}</h3>
+          {randomTest.descripcion && (
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              {randomTest.descripcion}
+            </p>
+          )}
+          {randomTest.jugadores && (
+            <p className="text-sm text-[var(--text-secondary)] mb-1">
+              {t("players")}: {randomTest.jugadores}
+            </p>
+          )}
+          <p className="text-sm text-[var(--text-secondary)] capitalize">
+            {t(`category_${randomTest.categoria}`).split(" ")[0]}
+          </p>
+        </div>
+      )}
+    </Card>
   );
 };
 

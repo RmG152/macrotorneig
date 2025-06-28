@@ -99,4 +99,8 @@ export default {
   edit: "Edit",
   cancel: "Cancel",
   continueToAssignPoints: "Continue to Assign Points",
+  randomTestPickerTitle: "Random Test Picker",
+  selectCategory: "Select Category",
+  pickRandomTest: "Pick Random Test",
+  noTestsInCategory: "No tests available in this category.",
 };

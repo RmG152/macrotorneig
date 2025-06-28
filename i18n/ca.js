@@ -100,4 +100,8 @@ export default {
   edit: "Editar",
   cancel: "Cancel·lar",
   continueToAssignPoints: "Continuar a Assignar Punts",
+  randomTestPickerTitle: "Selector de Prova Aleatòria",
+  selectCategory: "Seleccionar Categoria",
+  pickRandomTest: "Escollir Prova Aleatòria",
+  noTestsInCategory: "No hi ha proves disponibles en aquesta categoria.",
 };

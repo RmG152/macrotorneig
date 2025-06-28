@@ -41,8 +41,16 @@
         >
           Changelog
         </a>
-        <span>v1.2.1</span>
+        <span>v1.2.2</span>
         <span>28/06/2025</span>
+        <button
+          id="clear-localstorage-btn"
+          class="text-red-500 hover:underline bg-transparent border-none p-0 ml-2 text-sm cursor-pointer"
+          style="background:none; border:none;"
+          onclick="if(confirm('¿Seguro que quieres borrar todo el almacenamiento local?')){ localStorage.clear(); location.reload(); }"
+        >
+          /!\
+        </button>
       </div>
     </footer>
   </body>

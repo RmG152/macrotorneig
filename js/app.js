@@ -1310,7 +1310,7 @@ const CurrentRoundView = ({ round }) => {
                             setRevealedMatch(null);
                           }}
                           variant="secondary"
-                          className="text-[var(--accent-blue)]"
+                          className="text-[var(--accent-blue)] bg-[var(--accent-blue)] hover:opacity-80"
                         >
                           {t("wins")} {team1.nombre}
                         </Button>
@@ -1320,7 +1320,7 @@ const CurrentRoundView = ({ round }) => {
                             setRevealedMatch(null);
                           }}
                           variant="secondary"
-                          className="text-[var(--accent-purple)]"
+                          className="text-[var(--accent-purple)] bg-[var(--accent-purple)] hover:opacity-80"
                         >
                           {t("wins")} {team2.nombre}
                         </Button>

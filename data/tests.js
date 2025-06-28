@@ -50,6 +50,7 @@ export const initialTestsData = [
   { id: "test_49", utilizada: false, puntos: 3, jugadores: "1 Jugador", nombre: "La llauna maleïda", descripcion: "1 llauna de birra per jugador. Qui se l’acabi primer, guanya. Tot cap dins, no val escopir o tirar al terra", categoria: "rojo" },
   { id: "test_50", utilizada: false, puntos: 1, jugadores: "EQUIPS", nombre: "La tisorada extrema", descripcion: "L’equip que guanyi al pedra paper o tisora a cinc punts, li pren 1 punt fins a tres equips rivals", categoria: "verde" },
   { id: "test_51", utilizada: false, puntos: 2, jugadores: "1 Jugador", nombre: "Dibuixem al papa!", descripcion: "Votació popular amb estil lliure: des del més realista fins al més boig i imaginatiu! Deixa volar la teva creativitat! 🎨✨", categoria: "azul" },
+  { id: "test_52", utilizada: false, puntos: 5, jugadores: "EQUIPS", nombre: "Basquemanquia! caixa a 5 punts", descripcion: "PDTE", categoria: "azul" },
 ];
 
 export const getPointsForCategory = (categoria) => {

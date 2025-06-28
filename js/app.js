@@ -2,6 +2,7 @@
 import { initialTestsData, getPointsForCategory } from "./data/tests.js";
 import { translations } from "./i18n/index.js";
 import { rules } from "./data/rules.js";
+import { funnyAdjectives, funnyNouns } from "../data/names.js";
 
 const { useState, useEffect, createContext, useContext, useMemo } = React;
 
@@ -216,52 +217,7 @@ const initialTournamentState = {
   rounds: [],
   currentRound: 0,
 };
-const funnyAdjectives = [
-  "puta mare",
-  "Autists",
-  "Extrems",
-  "Suprems",
-  "Inpraiplas",
-  "Bombollejants",
-  "Veloços",
-  "Mantes",
-  "Fills de ",
-  "Estupenis",
-  "Prasiosus",
-  "Brutencis",
-  "Incontrolables",
-  "Drogadictes",
-  "Esparracades",
-  "Revisors de",
-  "Família de",
-  "Crancs de",
-  "Desperts",
-];
-const funnyNouns = [
-  "agumon",
-  "Barrakeros",
-  "Mancs",
-  "Xamos",
-  "Premohs",
-  "Nyus",
-  "Tortugues d'aigua",
-  "Dropos",
-  "Mites",
-  "Putes",
-  "Papa",
-  "Indivisibles",
-  "Aquatics",
-  "Metaleros",
-  "Birreros",
-  "Mugic",
-  "Viciats",
-  "Espardenyes",
-  "Flipats",
-  "Caps de cony",
-  "Mar",
-  "Riu",
-  "Somniatruites",
-];
+
 
 const TournamentProvider = ({ children }) => {
   const { t } = useLanguage();

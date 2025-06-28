@@ -2,7 +2,7 @@
 import { initialTestsData, getPointsForCategory } from "./data/tests.js";
 import { translations } from "./i18n/index.js";
 import { rules } from "./data/rules.js";
-import { funnyAdjectives, funnyNouns } from "../data/names.js";
+import { funnyAdjectives, funnyNouns } from "./data/names.js";
 
 const { useState, useEffect, createContext, useContext, useMemo } = React;
 

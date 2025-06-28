@@ -967,7 +967,7 @@ const SetupWizard = () => {
 };
 
 const TestManager = () => {
-  const { tests, addTest, removeTest } = useTournament();
+  const { tests, addTest, removeTest, config, updateConfig } = useTournament();
   const { t } = useLanguage();
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -1171,7 +1171,7 @@ const CurrentRoundView = ({ round }) => {
                 match.resultado
                   ? "bg-[var(--bg-secondary)]"
                   : "bg-[var(--bg-primary)]"
-              } ${!hidePoints && !match.resultado ? categoryBorderColors[match.prueba.categoria] + " border-2" : ""}`}
+              } ${!hidePoints && !match.resultado ? categoryBorderColors[match.normalPrueba.categoria] + " border-2" : ""}`}
             >
               <div className="flex justify-between items-center">
                 <span className="font-bold text-lg text-[var(--accent-blue)]">
@@ -1309,7 +1309,8 @@ const CurrentRoundView = ({ round }) => {
                             registerResult(match.id, team1.id);
                             setRevealedMatch(null);
                           }}
-                          className="bg-[var(--accent-blue)] hover:opacity-80"
+                          variant="secondary"
+                          className="text-[var(--accent-blue)]"
                         >
                           {t("wins")} {team1.nombre}
                         </Button>
@@ -1318,7 +1319,8 @@ const CurrentRoundView = ({ round }) => {
                             registerResult(match.id, team2.id);
                             setRevealedMatch(null);
                           }}
-                          className="bg-[var(--accent-purple)] hover:opacity-80"
+                          variant="secondary"
+                          className="text-[var(--accent-purple)]"
                         >
                           {t("wins")} {team2.nombre}
                         </Button>
@@ -2098,9 +2100,14 @@ const FinishedView = () => {
                           {t("winner")}: {winner}
                         </span>
                       </div>
-                      <div className="text-gray-500">
-                        {t("test")}: {match.prueba.nombre} (+
-                        {match.puntosPorGanar} pts)
+                      <div className="text-[var(--text-secondary)]">
+                        {t("test")}: {match.normalPrueba.nombre} (+
+                        {match.normalPrueba.puntos} pts)
+                        {match.bonusPrueba && (
+                          <p className="text-sm text-[var(--text-secondary)] mt-1">
+                            {t("bonusTest")}: {match.bonusPrueba.nombre}
+                          </p>
+                        )}
                       </div>
                     </li>
                   );

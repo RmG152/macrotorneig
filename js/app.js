@@ -1102,7 +1102,7 @@ const CurrentRoundView = ({ round }) => {
   return (
     <div>
       <h3 className="text-2xl font-bold mb-4">
-        {t("currentRound", { round: round.numero }) +" / "+ config.maxRounds}
+        {t("currentRound", { round: round.numero })} / {config.maxRounds}
       </h3>
       {round.restingTeam && (
         <div
@@ -1266,7 +1266,7 @@ const CurrentRoundView = ({ round }) => {
                             setRevealedMatch(null);
                           }}
                           variant="secondary"
-                          className="text-[var(--accent-blue)] bg-[var(--accent-blue)] hover:opacity-80"
+                          className="bg-[var(--accent-blue)] hover:opacity-80"
                         >
                           {t("wins")} {team1.nombre}
                         </Button>
@@ -1276,7 +1276,7 @@ const CurrentRoundView = ({ round }) => {
                             setRevealedMatch(null);
                           }}
                           variant="secondary"
-                          className="text-[var(--accent-purple)] bg-[var(--accent-purple)] hover:opacity-80"
+                          className="bg-[var(--accent-purple)] hover:opacity-80"
                         >
                           {t("wins")} {team2.nombre}
                         </Button>
